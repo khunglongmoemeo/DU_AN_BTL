@@ -1,4 +1,4 @@
-﻿import mysql from 'mysql2';
+import mysql from 'mysql2';
 import { dbPool } from '../config/database';
 import type {
 	ChatMessage,
@@ -35,7 +35,7 @@ Nguyên tắc tuyệt đối:
 - Nếu không có thông tin trong Context, hãy nói: "Hiện tại mình chưa có thông tin chính xác về vấn đề này. Em có thể liên hệ Phòng Đào tạo qua hotline để được hỗ trợ nhé."
 - Khi phát hiện thí sinh gặp sự cố (mất giấy tờ, lỗi nộp lệ phí, than phiền), hãy báo hiệu để chuyển giao cho tư vấn viên.
 
-Trả lời ngắn gọn, dễ hiểu, có emoji phù hợp.`;
+Trả lời ngắn gọn, dễ hiểu, có emoji phù hợp. LUÔN dùng dấu tiếng Việt đầy đủ (á, ắ, ê, ô, ơ, ư, đ) trong mọi câu trả lời. KHÔNG viết không dấu.`;
 
 // ──────────────────────────────────────────────
 // Prompt phân loại ý định (Intent routing)
@@ -214,6 +214,33 @@ const DEMO_KNOWLEDGE: KnowledgeItem[] = [
 ];
 
 // ──────────────────────────────────────────────
+// 2c. Tri thức hồ sơ & phương thức xét tuyển
+// ──────────────────────────────────────────────
+const DEMO_KNOWLEDGE_DOCS: Record<string, string> = {
+	ptit: 'Hồ sơ xét tuyển PTIT gồm: (1) Đơn đăng ký xét tuyển (theo mẫu của trường), (2) CCCD/CMND bản sao công chứng, (3) Học bạ THPT bản sao công chứng, (4) Giấy chứng nhận tốt nghiệp THPT tạm thời hoặc bằng tốt nghiệp (bản sao), (5) Ảnh chân dung 3x4 (02 cái), (6) Giấy tờ ưu tiên (nếu có: hộ khẩu, chứng nhận khuyết tật, diện đối tượng ưu tiên).',
+	hust: 'Hồ sơ xét tuyển HUST gồm: (1) Phiếu đăng ký xét tuyển (theo mẫu trường), (2) CCCD/CMND bản sao công chứng, (3) Học bạ lớp 12 (bản sao có công chứng), (4) Giấy chứng nhận tốt nghiệp tạm thời hoặc bằng tốt nghiệp (bản sao), (5) Ảnh 3x4 (02 cái), (6) Các chứng chỉ ưu tiên (nếu có).',
+	uit: 'Hồ sơ xét tuyển UIT gồm: (1) Phiếu đăng ký xét tuyển trực tuyến, (2) CCCD/CMND bản sao, (3) Học bạ lớp 12 có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời, (5) Ảnh 3x4 (02 cái), (6) Chứng chỉ ngoại ngữ quốc tế (nếu có để được ưu tiên).',
+	fpt: 'Hồ sơ xét tuyển ĐH FPT gồm: (1) Phiếu đăng ký xét tuyển, (2) CCCD/CMND bản sao, (3) Học bạ lớp 10, 11, 12 (bản sao có công chứng), (4) Bằng tốt nghiệp hoặc giấy chứng nhận tốt nghiệp tạm thời, (5) Chứng chỉ tiếng Anh (IELTS, TOEFL iBT...) nếu có.',
+	hcmus: 'Hồ sơ xét tuyển HCMUS gồm: (1) Phiếu đăng ký xét tuyển (theo mẫu ĐHQG TP.HCM), (2) CCCD/CMND bản sao, (3) Học bạ THPT bản sao có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời, (5) Ảnh 3x4.',
+	vnu: 'Hồ sơ xét tuyển VNU gồm: (1) Phiếu đăng ký xét tuyển theo mẫu ĐHQG Hà Nội, (2) CCCD/CMND bản sao, (3) Học bạ lớp 12 có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời hoặc bằng tốt nghiệp, (5) Ảnh 3x4 (02 cái).',
+	tlu: 'Hồ sơ xét tuyển ĐH Thủy lợi gồm: (1) Phiếu đăng ký xét tuyển, (2) CCCD/CMND bản sao, (3) Học bạ THPT bản sao có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời, (5) Ảnh 3x4 (02 cái).',
+	uel: 'Hồ sơ xét tuyển UEL gồm: (1) Phiếu đăng ký xét tuyển (theo mẫu trường), (2) CCCD/CMND bản sao công chứng, (3) Học bạ lớp 12 bản sao có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời, (5) Ảnh 3x4.',
+	ctu: 'Hồ sơ xét tuyển ĐH Cần Thơ gồm: (1) Phiếu đăng ký xét tuyển trực tuyến, (2) CCCD/CMND bản sao, (3) Học bạ THPT có công chứng, (4) Giấy chứng nhận tốt nghiệp tạm thời, (5) Ảnh 3x4 (02 cái).',
+};
+
+const DEMO_KNOWLEDGE_METHODS: Record<string, string> = {
+	ptit: 'Phương thức xét tuyển PTIT 2025 gồm: (1) Xét tuyển dựa trên kết quả thi tốt nghiệp THPT năm 2025 (phương thức chính, chiếm khoảng 60% chỉ tiêu), (2) Xét tuyển dựa trên kết quả học bạ lớp 12 (điểm trung bình 3 năm THPT), (3) Xét tuyển thẳng cho thí sinh đạt giải quốc gia, quốc tế hoặc học sinh giỏi cấp tỉnh. Thí sinh có thể đăng ký xét tuyển online qua cổng thông tin của trường.',
+	hust: 'Phương thức xét tuyển HUST 2025 gồm: (1) Xét tuyển dựa trên kết quả thi tốt nghiệp THPT (80% chỉ tiêu), (2) Xét tuyển thẳng học sinh giỏi quốc gia, quốc tế (20% chỉ tiêu). Thí sinh đăng ký qua cổng tuyển sinh của ĐHQG Hà Nội.',
+	uit: 'Phương thức xét tuyển UIT 2025 gồm: (1) Xét điểm thi tốt nghiệp THPT 2025 (phương thức chính), (2) Xét tuyển thẳng học sinh giỏi. Ưu tiên thí sinh có chứng chỉ ngoại ngữ quốc tế (IELTS >= 5.5, TOEFL iBT >= 65).',
+	fpt: 'Phương thức xét tuyển ĐH FPT 2025 gồm: (1) Xét học bạ lớp 10-12 (60%): điểm trung bình các môn học, ưu tiên tiếng Anh đầu vào, (2) Phỏng vấn trực tiếp hoặc online (40%): đánh giá năng lực tư duy và kỹ năng giao tiếp. Thí sinh đăng ký online qua website của ĐH FPT.',
+	hcmus: 'Phương thức xét tuyển HCMUS 2025: Xét tuyển dựa trên kết quả thi tốt nghiệp THPT kết hợp xét học bạ. Thí sinh đăng ký qua cổng ĐHQG TP.HCM.',
+	vnu: 'Phương thức xét tuyển VNU 2025 gồm: (1) Xét điểm thi tốt nghiệp THPT 2025 (theo khu vực ĐHQG Hà Nội), (2) Xét tuyển thẳng cho thí sinh giỏi quốc gia, quốc tế.',
+	tlu: 'Phương thức xét tuyển ĐH Thủy lợi 2025: Xét tuyển dựa trên kết quả thi tốt nghiệp THPT 2025. Thí sinh đăng ký online qua cổng tuyển sinh của trường.',
+	uel: 'Phương thức xét tuyển UEL 2025: Xét tuyển dựa trên kết quả thi tốt nghiệp THPT 2025 (phương thức chính). Thí sinh đăng ký qua cổng tuyển sinh của trường.',
+	ctu: 'Phương thức xét tuyển ĐH Cần Thơ 2025: Xét tuyển dựa trên kết quả thi tốt nghiệp THPT 2025. Thí sinh đăng ký qua cổng tuyển sinh của trường.',
+};
+
+// ──────────────────────────────────────────────
 // 3. Tìm kiếm theo từ khóa (fallback khi không có embedding)
 // ──────────────────────────────────────────────
 const KEYWORD_WEIGHTS: Record<string, number> = {
@@ -235,7 +262,7 @@ const ADMISSION_KEYWORDS = new Set([
 	'hoc phi', ' hoc bạ', 'hoc ba',
 	'nganh', 'nganh hoc', 'xet tuyen', 'tuyen sinh',
 	'khoi thi', 'a00', 'a01', 'd01', 'c00', 'b00',
-	'ho so', 'giay to', 'chung nhan', 'tot nghiep',
+	'ho so','ho so chuan bi' ,'giay to', 'chung nhan', 'tot nghiep',
 	'uu tien', 'diem uu tien',
 	'truong', 'dai hoc', 'hoc vien',
 	'ptit', 'hust', 'uit', 'fpt', 'vnu', 'hcmus', 'tlu', 'uel', 'ctu',
@@ -270,6 +297,71 @@ const isAdmissionRelated = (query: string): boolean => {
 		}
 	}
 	return false;
+};
+
+// Kiểm tra câu hỏi có phải về học phí không
+const isTuitionQuery = (query: string): boolean => {
+	const ql = normalizeVietnamese(query.toLowerCase());
+	return ql.includes('hoc phi') || ql.includes('học phí') || ql.includes('chi phi hoc tap') || ql.includes('phi');
+};
+
+// Kiểm tra câu hỏi có phải về hồ sơ / giấy tờ cần chuẩn bị không
+const isDocumentQuery = (query: string): boolean => {
+	const ql = normalizeVietnamese(query.toLowerCase());
+	return ql.includes('ho so') || ql.includes('can chuan bi') || ql.includes('nop ho so')
+		|| ql.includes('giay to') || ql.includes('chung nhan') || ql.includes('tot nghiep')
+		|| ql.includes('cccd') || ql.includes('cmnd') || ql.includes('ho ba') || ql.includes('hoc ba');
+};
+
+// Kiểm tra câu hỏi có phải về phương thức xét tuyển không
+const isMethodQuery = (query: string): boolean => {
+	const ql = normalizeVietnamese(query.toLowerCase());
+	return ql.includes('phuong thuc') || ql.includes('cach xet tuyen') || ql.includes('xet tuyen nao');
+};
+
+// Tìm thông tin hồ sơ trong knowledge base
+const searchDocumentFromKnowledge = (schoolId?: string): string | null => {
+	const school = schoolId || 'ptit';
+	return DEMO_KNOWLEDGE_DOCS[school] || null;
+};
+
+// Tìm phương thức xét tuyển trong knowledge base
+const searchMethodFromKnowledge = (schoolId?: string): string | null => {
+	const school = schoolId || 'ptit';
+	return DEMO_KNOWLEDGE_METHODS[school] || null;
+};
+
+// Tìm thông tin học phí trong knowledge base
+const searchTuitionFromKnowledge = (query: string, schoolId?: string): string | null => {
+	const ql = normalizeVietnamese(query.toLowerCase());
+
+	// Lấy school target
+	const targetSchoolId = schoolId;
+
+	// Tìm tất cả entry trong DEMO_KNOWLEDGE có chứa học phí
+	const tuitionChunks = DEMO_KNOWLEDGE.filter((chunk) => {
+		if (chunk.content.toLowerCase().includes('học phí')) {
+			if (targetSchoolId) return chunk.school_id === targetSchoolId;
+			return true;
+		}
+		return false;
+	});
+
+	// Nếu có school cụ thể → trả entry đầu tiên cho trường đó
+	if (targetSchoolId) {
+		const found = tuitionChunks.find((c) => c.school_id === targetSchoolId);
+		if (found) return found.content;
+	}
+
+	// Nếu query chứa tên trường cụ thể → match đúng trường
+	for (const chunk of tuitionChunks) {
+		if (chunk.content.toLowerCase().includes(ql)) {
+			return chunk.content;
+		}
+	}
+
+	// Không tìm thấy → trả null (sẽ dùng LLM fallback)
+	return null;
 };
 
 // Chuẩn hóa dấu tiếng Việt để so khớp từ khóa
@@ -363,39 +455,187 @@ const keywordSearch = (query: string, schoolId?: string): { results: string[]; i
 // ──────────────────────────────────────────────
 // 3b. Truy vấn điểm chuẩn từ DB theo tên ngành
 // ──────────────────────────────────────────────
+// Trích xuất năm từ câu hỏi (ví dụ: "điểm 2024", "năm 2024")
+const extractYear = (query: string): number | null => {
+	const match = query.match(/\b(20\d{2})\b/);
+	return match ? parseInt(match[1]) : null;
+};
+
+// Trích xuất từ khóa trường từ câu hỏi (PTIT, Bách Khoa, NEU, etc.)
+const extractSchoolKeywords = (query: string): string | null => {
+	const schoolPatterns: Array<[string[], string[]]> = [
+		[['ptit', 'học viện công nghệ bưu chính viễn thông'], ['PTIT', 'Học viện Công nghệ Bưu chính Viễn thông']],
+		[['bkh', 'bách khoa hà nội', 'hust'], ['BKH', 'Trường Đại học Bách Khoa Hà Nội']],
+		[['neu', 'kinh tế quốc dân'], ['NEU', 'Trường Đại học Kinh tế Quốc dân']],
+		[['ftu', 'ngoại thương'], ['FTU', 'Trường Đại học Ngoại thương']],
+		[['vnu', 'quốc gia hà nội'], ['VNU', 'Trường Đại học Quốc gia Hà Nội']],
+		[['uit'], ['UIT', 'Trường Đại học Công nghệ Thông tin']],
+		[['fpt'], ['FPT', 'Trường Đại học FPT']],
+		[['hcmus', 'khoa học tự nhiên'], ['HCMUS', 'Trường Đại học Khoa học Tự nhiên']],
+		[['tlu', 'thủy lợi'], ['TLU', 'Trường Đại học Thủy lợi']],
+		[['uel', 'kinh tế luật'], ['UEL', 'Trường Đại học Kinh tế Luật']],
+		[['ctu', 'cần thơ'], ['CTU', 'Trường Đại học Cần Thơ']],
+	];
+	const ql = normalizeVietnamese(query.toLowerCase());
+	for (const [keywords, codes] of schoolPatterns) {
+		if (keywords.some((kw) => ql.includes(kw))) {
+			return codes.join('|');
+		}
+	}
+	return null;
+};
+
+// Query điểm chuẩn theo TRƯỜNG + NĂM (không cần từ khóa ngành)
+const searchCutoffBySchool = async (query: string): Promise<string[]> => {
+	const schoolPattern = extractSchoolKeywords(query);
+	if (!schoolPattern) return [];
+
+	const targetYear = extractYear(query);
+	const ql = normalizeVietnamese(query.toLowerCase());
+
+	// Tên trường cho header (lấy từ pattern)
+	const schoolNameMap: Record<string, string> = {
+		PTIT: 'PTIT', 'Học viện Công nghệ Bưu chính Viễn thông': 'PTIT',
+		BKH: 'HUST', 'Trường Đại học Bách Khoa Hà Nội': 'HUST',
+		NEU: 'NEU', 'Trường Đại học Kinh tế Quốc dân': 'NEU',
+		FTU: 'FTU', 'Trường Đại học Ngoại thương': 'FTU',
+		VNU: 'VNU', 'Trường Đại học Quốc gia Hà Nội': 'VNU',
+		UIT: 'UIT', 'Trường Đại học Công nghệ Thông tin': 'UIT',
+		FPT: 'FPT', 'Trường Đại học FPT': 'FPT',
+		HCMUS: 'HCMUS', 'Trường Đại học Khoa học Tự nhiên': 'HCMUS',
+		TLU: 'TLU', 'Trường Đại học Thủy lợi': 'TLU',
+		UEL: 'UEL', 'Trường Đại học Kinh tế Luật': 'UEL',
+		CTU: 'CTU', 'Trường Đại học Cần Thơ': 'CTU',
+	};
+	const shortName = Object.keys(schoolNameMap).find((k) => schoolPattern.includes(k) && schoolNameMap[k]) || '';
+
+	// Kiểm tra có hỏi ngành cụ thể không
+	let majorFilter = '1=1';
+	let majorParams: string[] = [];
+	for (const [majorKey, config] of Object.entries(MAJOR_KEYWORDS)) {
+		if (ql.includes(majorKey)) {
+			majorFilter = 'm.name REGEXP ?';
+			majorParams = config.content_keywords;
+			break;
+		}
+	}
+
+	const yearCondition = targetYear !== null
+		? 'cs.year = ?'
+		: 'cs.year = (SELECT MAX(cs2.year) FROM cutoff_scores cs2 WHERE cs2.university_id = cs.university_id AND cs2.combination_id = cs.combination_id)';
+
+	const yearParams = targetYear !== null ? [targetYear] : [];
+	const params = [...majorParams, yearParams, schoolPattern, schoolPattern].flat();
+
+	const sql = `SELECT
+			u.name AS university_name,
+			m.name AS major_name,
+			c.code AS combination_code,
+			c.subject_names,
+			cs.year,
+			cs.score
+		FROM cutoff_scores cs
+		JOIN universities u ON cs.university_id = u.id
+		JOIN combinations c ON cs.combination_id = c.id
+		JOIN majors m ON m.university_id = u.id
+		WHERE ${majorFilter}
+		  AND ${yearCondition}
+		  AND (u.code REGEXP ? OR u.name REGEXP ?)
+		GROUP BY u.name, m.name, c.code, c.subject_names, cs.year, cs.score
+		ORDER BY m.name, cs.score DESC`;
+
+	try {
+		const [rows] = await dbPool.query<mysql.RowDataPacket[]>(sql, params);
+
+		if (rows.length === 0) return [];
+
+		// Group by major
+		const grouped: Record<string, { scores: string[]; year: number }> = {};
+		for (const row of rows) {
+			const major = row.major_name as string;
+			if (!grouped[major]) {
+				grouped[major] = { scores: [], year: row.year as number };
+			}
+			grouped[major].scores.push(
+				`  - ${row.combination_code} (${row.subject_names}): ${row.score} điểm|MAJOR_SCORE|`,
+			);
+		}
+
+		const yearLabel = targetYear !== null ? ` năm ${targetYear}` : ` năm ${Object.values(grouped)[0].year}`;
+		const lines: string[] = [`Điểm chuẩn ${shortName}${yearLabel}:`];
+
+		for (const [major, data] of Object.entries(grouped)) {
+			const scoreLines = data.scores.join('');
+			lines.push(`\nNgành: ${major}:`);
+			lines.push(scoreLines);
+		}
+
+		lines.push('\nLưu ý: Điểm chuẩn có thể thay đổi từng năm. Em nên theo dõi thông báo chính thức từ trường nhé!');
+		return lines;
+	} catch (error) {
+		console.warn('[AI Service] searchCutoffBySchool failed:', (error as Error).message);
+		return [];
+	}
+};
+
+// Query điểm chuẩn theo NGÀNH + TRƯỜNG + NĂM
 const searchCutoffByMajor = async (query: string): Promise<string[]> => {
 	const ql = normalizeVietnamese(query.toLowerCase());
 
-	// Kiểm tra câu hỏi có phải về ngành cụ thể không
 	for (const [majorKey] of Object.entries(MAJOR_KEYWORDS)) {
 		if (!ql.includes(majorKey)) continue;
 
 		const config = MAJOR_KEYWORDS[majorKey];
 		const majorNames = config.content_keywords;
+		const targetYear = extractYear(query);
+		const schoolPattern = extractSchoolKeywords(query);
 
 		try {
-			const [rows] = await dbPool.query<mysql.RowDataPacket[]>(
-				`SELECT DISTINCT
-					m.name AS major_name,
-					u.short_name AS university_short,
-					u.name AS university_name,
-					c.code AS combination_code,
-					c.subject_names,
-					cs.year,
-					cs.score
-				FROM cutoff_scores cs
-				JOIN universities u ON cs.university_id = u.id
-				JOIN combinations c ON cs.combination_id = c.id
-				JOIN majors m ON m.university_id = u.id
-				WHERE m.name REGEXP ?
-				  AND cs.year = (SELECT MAX(year) FROM cutoff_scores cs2 WHERE cs2.university_id = cs.university_id AND cs2.combination_id = cs.combination_id)
-				ORDER BY cs.score DESC
-				LIMIT 10`,
-				[majorNames.join('|')],
-			);
+			let sql: string;
+			let params: (string | number)[];
+
+			const baseSelect = `SELECT
+				cs.university_id,
+				u.name AS university_name,
+				c.code AS combination_code,
+				c.subject_names,
+				cs.year,
+				cs.score
+			FROM cutoff_scores cs
+			JOIN universities u ON cs.university_id = u.id
+			JOIN combinations c ON cs.combination_id = c.id
+			JOIN majors m ON m.university_id = u.id AND m.name REGEXP ?`;
+
+			// Filter theo năm: nếu user chỉ định năm cụ thể thì dùng, không thì lấy năm mới nhất
+			const yearSubquery = targetYear !== null
+				? 'cs.year = ?'
+				: 'cs.year = (SELECT MAX(cs2.year) FROM cutoff_scores cs2 WHERE cs2.university_id = cs.university_id AND cs2.combination_id = cs.combination_id)';
+
+			const schoolFilter = schoolPattern
+				? '(u.code REGEXP ? OR u.name REGEXP ?)'
+				: '1=1';
+
+			const whereClause = schoolPattern
+				? `WHERE ${yearSubquery} AND ${schoolFilter}`
+				: `WHERE ${yearSubquery}`;
+
+			if (targetYear !== null) {
+				params = schoolPattern
+					? [majorNames.join('|'), targetYear, schoolPattern, schoolPattern]
+					: [majorNames.join('|'), targetYear];
+			} else {
+				params = schoolPattern
+					? [majorNames.join('|'), schoolPattern, schoolPattern]
+					: [majorNames.join('|')];
+			}
+
+			sql = `${baseSelect} ${whereClause} ORDER BY u.name, cs.score DESC LIMIT 30`;
+
+			const [rows] = await dbPool.query<mysql.RowDataPacket[]>(sql, params);
 
 			if (rows.length === 0) return [];
 
+			// Group by university
 			const grouped: Record<string, { scores: string[]; year: number }> = {};
 			for (const row of rows) {
 				const uni = row.university_name as string;
@@ -403,16 +643,13 @@ const searchCutoffByMajor = async (query: string): Promise<string[]> => {
 					grouped[uni] = { scores: [], year: row.year as number };
 				}
 				grouped[uni].scores.push(
-					`  - ${row.combination_code} (${row.subject_names}): ${row.score} điểm`,
+					`  - ${row.combination_code} (${row.subject_names}): ${row.score} điểm|SCHOOL_SCORE|`,
 				);
 			}
 
 			return Object.entries(grouped).map(([uni, data]) => {
-				const lines = [
-					`📚 ${uni} — Ngành: ${majorNames[0]} (${data.year}):`,
-					...data.scores,
-				];
-				return lines.join('\n');
+				const scoreLines = data.scores.join('');
+				return `Trường: ${uni} (${data.year}):\n${scoreLines}`;
 			});
 		} catch (error) {
 			console.warn('[AI Service] Cutoff DB query failed:', (error as Error).message);
@@ -421,6 +658,81 @@ const searchCutoffByMajor = async (query: string): Promise<string[]> => {
 	}
 
 	return [];
+};
+
+// Trích xuất năm từ câu hỏi để định dạng response
+const extractYearFromQuery = (query: string): number | null => {
+	const match = query.match(/\b(20\d{2})\b/);
+	return match ? parseInt(match[1]) : null;
+};
+
+// Tên viết tắt của các trường
+const SCHOOL_SHORT_NAMES: Record<string, string> = {
+	ptit: 'PTIT',
+	hust: 'HUST',
+	uit: 'UIT',
+	fpt: 'FPT',
+	vnu: 'VNU',
+	hcmus: 'HCMUS',
+	tlu: 'TLU',
+	uel: 'UEL',
+	ctu: 'CTU',
+};
+
+// Tạo phản hồi điểm chuẩn trực tiếp từ kết quả DB
+const composeCutoffResponseFromDB = (dbCutoffResults: string[], userMessage: string, schoolId?: string): string => {
+	const lines: string[] = [];
+
+	for (const block of dbCutoffResults) {
+		const idx = block.indexOf('|SCHOOL_SCORE|');
+		if (idx === -1) continue;
+
+		const headerPart = block.slice(0, idx).trim();
+		const scoresPart = block.slice(idx + '|SCHOOL_SCORE|'.length);
+
+		// Parse năm từ header: "Trường: Tên Trường (2025):"
+		const headerMatch = headerPart.match(/^Trường:\s*.+?\s*\((\d{4})\):?/);
+		if (!headerMatch) continue;
+		const yearFromDB = headerMatch[1];
+
+		// Tách từng dòng điểm
+		const scoreLines = scoresPart
+			.split('|SCHOOL_SCORE|')
+			.map((s) => s.trim())
+			.filter((s) => s.startsWith('-'));
+
+		if (scoreLines.length === 0) continue;
+
+		if (!lines.length) {
+			const schoolShort = SCHOOL_SHORT_NAMES[schoolId || ''] || '';
+			lines.push(`Điểm chuẩn ngành CNTT ${schoolShort} năm ${yearFromDB}:`);
+		}
+
+		for (const scoreLine of scoreLines) {
+			// Dùng indexOf thay vì regex để tránh lỗi Unicode NFD vs NFC
+			const diemIdx = scoreLine.toLowerCase().indexOf('điểm');
+			if (diemIdx === -1) continue;
+
+			const before = scoreLine.slice(0, diemIdx).trim();
+			const parenIdx = before.lastIndexOf('(');
+			const colonIdx = before.lastIndexOf(':');
+			if (parenIdx === -1 || colonIdx === -1) continue;
+
+			const combo = before.slice(0, parenIdx).replace(/^-\s*/, '').trim();
+			const subjects = before.slice(parenIdx + 1, colonIdx).trim();
+			const score = before.slice(colonIdx + 1).trim();
+
+			lines.push(`  • Khối ${combo} (${subjects}): ${score} điểm`);
+		}
+	}
+
+	if (lines.length === 0) {
+		const targetYear = extractYearFromQuery(userMessage);
+		return `Hiện mình chưa có dữ liệu điểm chuẩn ngành CNTT${schoolId ? ` cho ${SCHOOL_SHORT_NAMES[schoolId]}` : ''}${targetYear ? ` năm ${targetYear}` : ''} trong hệ thống. Em có thể hỏi về năm khác hoặc ngành khác nhé!`;
+	}
+
+	lines.push('\nLưu ý: Điểm chuẩn có thể thay đổi từng năm. Em nên theo dõi thông báo chính thức từ trường nhé!');
+	return lines.join('\n');
 };
 
 // ──────────────────────────────────────────────
@@ -475,7 +787,6 @@ const buildContextFromChunks = (chunks: KnowledgeChunk[]): string => {
 const SCHOOL_ALIASES: Record<string, string> = {
 	// PTIT
 	ptit: 'ptit',
-	'ptit': 'ptit',
 	'hvpt': 'ptit',
 	'hvbcvt': 'ptit',
 	'bưu chính': 'ptit',
@@ -488,7 +799,6 @@ const SCHOOL_ALIASES: Record<string, string> = {
 	'bách khoa hà nội': 'hust',
 	// UIT
 	uit: 'uit',
-	'uit': 'uit',
 	// FPT
 	fpt: 'fpt',
 	'fptu': 'fpt',
@@ -510,12 +820,51 @@ const SCHOOL_ALIASES: Record<string, string> = {
 	'cần thơ': 'ctu',
 };
 
+// Tập trường hỗ trợ (chữ thường)
+const SUPPORTED_SCHOOL_IDS = new Set(['ptit', 'hust', 'uit', 'fpt', 'vnu', 'hcmus', 'tlu', 'uel', 'ctu']);
+
+// Regex pattern nhận diện tên trường (có thể không hỗ trợ)
+const UNKNOWN_SCHOOL_PATTERNS: RegExp[] = [
+	/uet(?![a-z])/i,
+	/vnu-?uet/i,
+	/đh khoa học tự nhiên/i,
+	/nuce/i,
+	/xây dựng(?!\s+(lực|miền))/i,
+	/đại học xây dựng/i,
+	/hanu/i,
+	/đại học sư phạm(?!\s+hà nội)/i,
+	/ueh/i,
+	/đại học kinh tế(?!\s+(quốc|tp))/i,
+	/hufl/i,
+	/huflit/i,
+	/luật(?!\s+(kinh|quốc))/i,
+	/nông nghiệp/i,
+	/đại học nông nghiệp/i,
+];
+
 export const detectSchoolFromMessage = (message: string): string | undefined => {
 	const lower = normalizeVietnamese(message.toLowerCase());
 	for (const [alias, schoolId] of Object.entries(SCHOOL_ALIASES)) {
 		if (lower.includes(alias)) return schoolId;
 	}
 	return undefined;
+};
+
+const extractSchoolNameFromMessage = (message: string): string | null => {
+	for (const pattern of UNKNOWN_SCHOOL_PATTERNS) {
+		const match = message.match(pattern);
+		if (match) return match[0];
+	}
+	return null;
+};
+
+const isUnknownSchoolMentioned = (message: string): boolean => {
+	if (!extractSchoolNameFromMessage(message)) return false;
+	const lower = normalizeVietnamese(message.toLowerCase());
+	for (const id of SUPPORTED_SCHOOL_IDS) {
+		if (lower.includes(id)) return false;
+	}
+	return true;
 };
 
 // ──────────────────────────────────────────────
@@ -574,7 +923,7 @@ export const classifyIntent = async (userMessage: string): Promise<{
 	// Dùng LLM để phân loại ý định khi có API key
 	try {
 		const prompt = INTENT_PROMPT.replace('{user_message}', userMessage);
-		const result = await callLLM([], prompt);
+		const result = await callLLM({ userMessage: prompt, isMainCall: false });
 		const parsed = JSON.parse(result) as { intent: string; should_handoff: boolean };
 		return { intent: parsed.intent, shouldHandoff: parsed.should_handoff };
 	} catch (error) {
@@ -594,7 +943,7 @@ export const extractNER = async (conversation: string): Promise<NERExtractedData
 
 	try {
 		const prompt = NER_PROMPT.replace('{conversation}', conversation);
-		const result = await callLLM([], prompt);
+		const result = await callLLM({ userMessage: prompt, isMainCall: false });
 		const parsed = JSON.parse(result) as NERExtractedData;
 		return parsed || {};
 	} catch (error) {
@@ -662,15 +1011,20 @@ const SCHOOL_NAMES: Record<string, string> = {
 	ctu: 'Trường Đại học Cần Thơ (CTU)',
 };
 
-const callLLM = async (
-	history: LLMMessage[],
-	userMessage: string,
-	contextDocument = '',
-	schoolId?: string,
-): Promise<string> => {
+interface CallLLMOptions {
+	history?: LLMMessage[];
+	userMessage?: string;
+	contextDocument?: string;
+	schoolId?: string;
+	isMainCall?: boolean;
+}
+
+const callLLM = async (options: CallLLMOptions): Promise<string> => {
+	const { history = [], userMessage = '', contextDocument = '', schoolId, isMainCall = true } = options;
 	const messages: LLMMessage[] = [...history];
 
-	if (history.length === 0 && !userMessage.includes('Phân loại') && !userMessage.includes('trích xuất')) {
+	// Chỉ inject system prompt khi là lời gọi chính (phản hồi user), không phải intent/NER
+	if (isMainCall && !userMessage.includes('Phân loại') && !userMessage.includes('trích xuất')) {
 		const schoolInfo = schoolId && SCHOOL_NAMES[schoolId]
 			? `Trường mà thí sinh đang hỏi: **${SCHOOL_NAMES[schoolId]}**. LUÔN trả lời dựa trên thông tin của đúng trường này.`
 			: 'Nếu thí sinh hỏi về trường cụ thể (PTIT, HUST, UIT, FPT...), hãy trả lời dựa trên Context được cung cấp. Nếu Context không có thông tin về trường đó, hãy nói rõ: "Hiện mình chưa có dữ liệu chính xác về trường này."';
@@ -798,7 +1152,7 @@ const callOllama = async (messages: LLMMessage[]): Promise<string> => {
 // ──────────────────────────────────────────────
 // 10. Phản hồi mẫu (khi không có API key)
 // ──────────────────────────────────────────────
-const SCHOOL_DISPLAY_NAMES: Record<string, string> = {
+const SCHOOL_LONG_NAMES: Record<string, string> = {
 	ptit: 'PTIT',
 	hust: 'HUST (Trường ĐH Bách khoa Hà Nội)',
 	uit: 'UIT (Trường ĐH Công nghệ Thông tin, ĐHQG TP.HCM)',
@@ -820,7 +1174,7 @@ const generateDemoResponse = (userMessage: string, schoolId?: string): string =>
 
 	// Phương thức xét tuyển chung
 	if (lower.includes('phuong thuc xet tuyen') || lower.includes('cach xet tuyen') || lower.includes('xet tuyen nao')) {
-		const schoolName = schoolId ? SCHOOL_DISPLAY_NAMES[schoolId] : 'các trường';
+		const schoolName = schoolId ? SCHOOL_LONG_NAMES[schoolId] : 'các trường';
 		const ptData = DEMO_KNOWLEDGE.find((k) => k.school_id === (schoolId || 'ptit') && k.content.includes('Phương thức xét tuyển'));
 		if (ptData) return `${ptData.content}`;
 		return `Mình có thông tin về phương thức xét tuyển của ${schoolName}. Em muốn hỏi cụ thể trường nào?`;
@@ -848,7 +1202,7 @@ const generateDemoResponse = (userMessage: string, schoolId?: string): string =>
 
 	// Khối thi
 	if (lower.includes('khoi') || lower.includes('a00') || lower.includes('a01') || lower.includes('d01') || lower.includes('c00') || lower.includes('b00')) {
-		const schoolName = schoolId ? SCHOOL_DISPLAY_NAMES[schoolId] : 'mỗi trường';
+		const schoolName = schoolId ? SCHOOL_LONG_NAMES[schoolId] : 'mỗi trường';
 		return `Các khối xét tuyển phổ biến: A00 (Toán, Lý, Hóa), A01 (Toán, Lý, Anh), D01 (Toán, Văn, Anh), C00 (Văn, Sử, Địa), B00 (Toán, Hóa, Sinh). Điểm chuẩn tùy thuộc ${schoolName}. Em thi khối nào vậy?`;
 	}
 
@@ -864,7 +1218,7 @@ const generateDemoResponse = (userMessage: string, schoolId?: string): string =>
 	}
 
 	// Không có dữ liệu cho trường này
-	return `Mình chưa có dữ liệu chi tiết cho ${SCHOOL_DISPLAY_NAMES[schoolId] || schoolId} trong hệ thống. Em có thể hỏi về PTIT, HUST, UIT, FPT, VNU, HCMUS, TLU, UEL hoặc CTU nhé!`;
+	return `Mình chưa có dữ liệu chi tiết cho ${SCHOOL_LONG_NAMES[schoolId] || schoolId} trong hệ thống. Em có thể hỏi về PTIT, HUST, UIT, FPT, VNU, HCMUS, TLU, UEL hoặc CTU nhé!`;
 };
 
 // ──────────────────────────────────────────────
@@ -895,7 +1249,7 @@ export const generateChatResponse = async (
 	// Bước 3: Kiểm tra câu hỏi có liên quan đến tuyển sinh không
 	if (!isAdmissionRelated(userMessage)) {
 		return {
-			response: 'Mình là trợ lý tư vấn tuyển sinh của PTIT. Em có thể hỏi mình về điểm chuẩn, học phí, ngành học, phương thức xét tuyển, hồ sơ cần chuẩn bị nhé!',
+			response: 'Mình là trợ lý tư vấn tuyển sinh trực tuyến. Bạn có thể hỏi mình về điểm chuẩn, học phí, ngành học, phương thức xét tuyển, hồ sơ cần chuẩn bị nhé!',
 			shouldHandoff: false,
 			nerData: {},
 		};
@@ -912,35 +1266,98 @@ export const generateChatResponse = async (
 	const detectedSchool = detectSchoolFromMessage(userMessage);
 	console.log(`[AI Chat] Detected school: ${detectedSchool || 'none'}`);
 
+	// Bước 5: Nếu user hỏi trường không có trong hệ thống → trả lời hợp lý
+	if (isUnknownSchoolMentioned(userMessage)) {
+		const schoolName = extractSchoolNameFromMessage(userMessage) || '';
+		return {
+			response: `Mình chưa có dữ liệu chi tiết cho trường "${schoolName}" trong hệ thống. Em có thể hỏi về PTIT, HUST, UIT, FPT, VNU, HCMUS, TLU, UEL hoặc CTU nhé!`,
+			shouldHandoff: false,
+			nerData: {},
+		};
+	}
+
 	// Bước 5: Tìm kiếm RAG — dùng keyword search nếu không có embedding API
 	let contextDocument = '';
-
-	// 5a: Thử truy vấn điểm chuẩn từ DB cho câu hỏi về ngành cụ thể
-	const dbCutoffResults = await searchCutoffByMajor(userMessage);
 	let finalResponse = '';
 
-	if (dbCutoffResults.length > 0) {
-		const dbContext = 'TRI THỨC TUYỂN SINH TỪ CƠ SỞ DỮ LIỆU:\n' +
-			dbCutoffResults.join('\n\n');
-		finalResponse = await callLLM(historyMessages.slice(-19), userMessage, dbContext, detectedSchool);
-	} else {
-		// 5b: Fallback sang keyword search / RAG
-		const queryEmbedding = await generateEmbedding(userMessage);
-
-		if (queryEmbedding.length > 0) {
-			const relevantChunks = await retrieveRelevantChunks(queryEmbedding, detectedSchool, TOP_K_CHUNKS + 2);
-			contextDocument = buildContextFromChunks(relevantChunks);
+	// 5a: Nếu hỏi về học phí → tìm trong knowledge base trước (không query điểm chuẩn)
+	if (isTuitionQuery(userMessage)) {
+		const tuitionInfo = searchTuitionFromKnowledge(userMessage, detectedSchool);
+		if (tuitionInfo) {
+			finalResponse = tuitionInfo;
 		} else {
-			// Fallback keyword search
-			const { results: keywordResults } = keywordSearch(userMessage, detectedSchool);
-			if (keywordResults.length > 0) {
-				contextDocument = 'TRI THỨC TUYỂN SINH (CHỈ TRẢ LỜI DỰA TRÊN ĐÂY):\n' +
-					keywordResults.map((content, i) => `[Nguồn ${i + 1}]: ${content}`).join('\n\n');
+			finalResponse = await callLLM({
+				history: historyMessages.slice(-19),
+				userMessage,
+				contextDocument: '',
+				schoolId: detectedSchool,
+				isMainCall: true,
+			});
+		}
+	// 5b: Nếu hỏi về hồ sơ cần chuẩn bị → tìm trong DEMO_KNOWLEDGE_DOCS
+	} else if (isDocumentQuery(userMessage)) {
+		const docInfo = searchDocumentFromKnowledge(detectedSchool);
+		if (docInfo) {
+			finalResponse = docInfo;
+		} else {
+			finalResponse = await callLLM({
+				history: historyMessages.slice(-19),
+				userMessage,
+				contextDocument: '',
+				schoolId: detectedSchool,
+				isMainCall: true,
+			});
+		}
+	// 5c: Nếu hỏi về phương thức xét tuyển → tìm trong DEMO_KNOWLEDGE_METHODS
+	} else if (isMethodQuery(userMessage)) {
+		const methodInfo = searchMethodFromKnowledge(detectedSchool);
+		if (methodInfo) {
+			finalResponse = methodInfo;
+		} else {
+			finalResponse = await callLLM({
+				history: historyMessages.slice(-19),
+				userMessage,
+				contextDocument: '',
+				schoolId: detectedSchool,
+				isMainCall: true,
+			});
+		}
+	} else {
+		// 5d: Thử truy vấn điểm chuẩn từ DB
+		const dbCutoffResults = await searchCutoffByMajor(userMessage);
+
+		if (dbCutoffResults.length > 0) {
+			finalResponse = composeCutoffResponseFromDB(dbCutoffResults, userMessage, detectedSchool);
+		} else {
+			// 5e: Thử query theo trường (khi không có từ khóa ngành nhưng có tên trường)
+			const schoolCutoffResults = await searchCutoffBySchool(userMessage);
+			if (schoolCutoffResults.length > 0) {
+				finalResponse = schoolCutoffResults.join('\n');
+			} else {
+				// 5f: Fallback sang keyword search / RAG
+				const queryEmbedding = await generateEmbedding(userMessage);
+
+				if (queryEmbedding.length > 0) {
+					const relevantChunks = await retrieveRelevantChunks(queryEmbedding, detectedSchool, TOP_K_CHUNKS + 2);
+					contextDocument = buildContextFromChunks(relevantChunks);
+				} else {
+					const { results: keywordResults } = keywordSearch(userMessage, detectedSchool);
+					if (keywordResults.length > 0) {
+						contextDocument = 'TRI THỨC TUYỂN SINH (CHỈ TRẢ LỜI DỰA TRÊN ĐÂY):\n' +
+							keywordResults.map((content, i) => `[Nguồn ${i + 1}]: ${content}`).join('\n\n');
+					}
+				}
+
+				// Bước 6: Sinh phản hồi với context được tiêm vào
+				finalResponse = await callLLM({
+					history: historyMessages.slice(-19),
+					userMessage,
+					contextDocument,
+					schoolId: detectedSchool,
+					isMainCall: true,
+				});
 			}
 		}
-
-		// Bước 6: Sinh phản hồi với context được tiêm vào
-		finalResponse = await callLLM(historyMessages.slice(-19), userMessage, contextDocument, detectedSchool);
 	}
 
 	// Bước 7: Trích xuất NER (bất đồng bộ, không chặn)

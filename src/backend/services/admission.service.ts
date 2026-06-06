@@ -77,11 +77,13 @@ const UPLOADS_ROOT = path.join(process.cwd(), 'src', 'backend', 'uploads', 'admi
 const ALLOWED_UPLOAD_MIME_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
-const parseJson = <T>(value: string | null, fallback: T): T => {
+const parseJson = <T>(value: string | object | null, fallback: T): T => {
 	if (!value) {
 		return fallback;
 	}
-
+	if (typeof value === 'object') {
+		return value as T;
+	}
 	try {
 		return JSON.parse(value) as T;
 	} catch {

@@ -30,41 +30,44 @@ const ManagerPage: React.FC = () => {
         onCollapse={setCollapsed}
         theme="dark"
         width={220}
-        style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.15)' }}
+        style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.15)', height: '100vh', overflow: 'hidden' }}
       >
-        <div className={styles.siderLogo}>
-          {collapsed
-            ? <DashboardOutlined style={{ fontSize: 22, color: '#fff' }} />
-            : (
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Quản lý tuyển sinh</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>Admin Dashboard</div>
-              </div>
-            )
-          }
-        </div>
+        <div className={styles.siderWrapper}>
+          <div className={styles.siderLogo}>
+            {collapsed
+              ? <DashboardOutlined style={{ fontSize: 22, color: '#fff' }} />
+              : (
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Quản lý tuyển sinh</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>Admin Dashboard</div>
+                </div>
+              )
+            }
+          </div>
 
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[activeMenu]}
-          onClick={({ key }) => setActiveMenu(key)}
-          items={[
-            { key: 'profiles', icon: <FileTextOutlined />, label: 'Danh sách hồ sơ' },
-            { key: 'statistics', icon: <BarChartOutlined />, label: 'Thống kê' },
-            { key: 'aichat', icon: <MessageOutlined />, label: 'Chat AI' },
-          ]}
-        />
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[activeMenu]}
+            onClick={({ key }) => setActiveMenu(key)}
+            className={styles.siderMenu}
+            items={[
+              { key: 'profiles', icon: <FileTextOutlined />, label: 'Danh sách hồ sơ' },
+              { key: 'statistics', icon: <BarChartOutlined />, label: 'Thống kê' },
+              { key: 'aichat', icon: <MessageOutlined />, label: 'Chat AI' },
+            ]}
+          />
 
-        <div className={styles.siderBottom}>
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            onClick={() => { logout(); history.push('/user/login'); }}
-            style={{ color: 'rgba(255,255,255,0.65)', width: '100%', textAlign: 'left' }}
-          >
-            {!collapsed && 'Đăng xuất'}
-          </Button>
+          <div className={styles.siderBottom}>
+            <Button
+              type="text"
+              icon={<LogoutOutlined />}
+              onClick={() => { logout(); history.push('/user/login'); }}
+              style={{ color: 'rgba(255,255,255,0.65)', width: '100%', textAlign: 'left' }}
+            >
+              {!collapsed && 'Đăng xuất'}
+            </Button>
+          </div>
         </div>
       </Sider>
 

@@ -5,17 +5,24 @@
   padding: 0 16px;
   background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+.siderWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.siderMenu {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .siderBottom {
-  position: absolute;
-  bottom: 48px;
-  left: 0;
-  right: 0;
-  padding: 0 8px;
+  flex-shrink: 0;
+  padding: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 8px;
 }
 
 .header {
@@ -38,7 +45,8 @@
 }
 
 .content {
-  margin: 20px 24px;
+  margin: 16px;
+  overflow-y: auto;
 }
 
 .statCard {
@@ -66,15 +74,26 @@
 // ─── AI Chat Panel ───
 .aiPanel {
   height: 100%;
-
-  :global(.ant-card) {
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  }
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .sessionCard {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  max-height: 38%;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  :global(.ant-card-body) {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.ant-list-item) {
+    padding: 8px 12px !important;
+  }
 }
 
 .sessionItem {
@@ -99,7 +118,30 @@
 }
 
 .leadsCard {
-  margin-top: 16px;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  :global(.ant-card-body) {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.ant-spin-nested-loading),
+  :global(.ant-spin-container) {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(.ant-table-wrapper) {
+    flex: 1;
+    overflow: auto;
+  }
 }
 
 .chatCard {
@@ -110,8 +152,8 @@
   :global(.ant-card-body) {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 260px);
-    padding: 0;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
   }
 }

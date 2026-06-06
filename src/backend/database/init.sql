@@ -13,8 +13,13 @@ USE student_management;
 -- =========================================================================
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS email_logs;
+DROP TABLE IF EXISTS admission_wishes;
+DROP TABLE IF EXISTS admission_applications;
 DROP TABLE IF EXISTS applications;
 DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS potential_students;
+DROP TABLE IF EXISTS admin_online_status;
+DROP TABLE IF EXISTS chat_history;
 DROP TABLE IF EXISTS major_combinations;
 DROP TABLE IF EXISTS combinations;
 DROP TABLE IF EXISTS majors;
@@ -157,7 +162,84 @@ CREATE TABLE email_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =========================================================================
--- 5. BẢNG ĐIỂM CHUẨN TUYỂN SINH
+-- 5. BẢNG HỒ SƠ TUYỂN SINH (Đăng ký online của sinh viên)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS admission_applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    status ENUM('draft','submitted','reviewing','approved','rejected','needs_revision') DEFAULT 'draft',
+    personal_info JSON DEFAULT NULL,
+    academic_info JSON DEFAULT NULL,
+    documents_info JSON DEFAULT NULL,
+    confirmation_checked TINYINT(1) DEFAULT 0,
+    submitted_at TIMESTAMP NULL DEFAULT NULL,
+    reviewed_at TIMESTAMP NULL DEFAULT NULL,
+    rejection_reason TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admission_wishes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    application_id INT NOT NULL,
+    priority_order INT NOT NULL,
+    school_name VARCHAR(255) NOT NULL,
+    major_name VARCHAR(255) NOT NULL,
+    subject_group VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES admission_applications(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================================
+-- 6. BẢNG THÍ SINH TIỀM NĂNG (AI trích xuất từ chat)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS potential_students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(100) DEFAULT NULL,
+    user_id INT DEFAULT NULL,
+    student_name VARCHAR(255) DEFAULT NULL,
+    score DECIMAL(5,2) DEFAULT NULL,
+    subject_group VARCHAR(50) DEFAULT NULL,
+    target_major VARCHAR(255) DEFAULT NULL,
+    phone VARCHAR(20) DEFAULT NULL,
+    email VARCHAR(100) DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    reviewed BOOLEAN DEFAULT FALSE,
+    reviewed_by INT DEFAULT NULL,
+    reviewed_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_reviewed (reviewed),
+    INDEX idx_created (created_at),
+    INDEX idx_session (session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================================
+-- 7. BẢNG CHAT AI (Lịch sử hội thoại & Online status)
+-- =========================================================================
+CREATE TABLE IF NOT EXISTS chat_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(100) NOT NULL,
+    user_id INT DEFAULT NULL,
+    role ENUM('user','assistant','admin','system') NOT NULL,
+    content TEXT NOT NULL,
+    metadata JSON DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_session (session_id),
+    INDEX idx_user (user_id),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_online_status (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT NOT NULL UNIQUE,
+    is_online BOOLEAN DEFAULT FALSE,
+    last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =========================================================================
+-- 8. BẢNG ĐIỂM CHUẨN TUYỂN SINH
 -- =========================================================================
 CREATE TABLE IF NOT EXISTS cutoff_scores (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -243,7 +325,7 @@ JOIN universities u ON u.code = cs.university_code
 JOIN combinations c ON c.code = cs.combination_code;
 
 -- =========================================================================
--- 6. CHÈN DỮ LIỆU MẪU (MOCK DATA)
+-- 9. CHÈN DỮ LIỆU MẪU (MOCK DATA)
 -- =========================================================================
 
 -- Vai trò & Tài khoản
@@ -296,7 +378,7 @@ SELECT u.id, 'Nguyễn Văn Sinh Viên', '2006-05-15', 'MALE', '001234567890', '
 FROM users u WHERE u.username='student01';
 
 -- =========================================================================
--- 6. KIỂM TRA DỮ LIỆU SAU KHI KHỞI TẠO
+-- 10. KIỂM TRA DỮ LIỆU SAU KHI KHỞI TẠO
 -- =========================================================================
 SELECT users.id, users.full_name, users.email, users.username, roles.name AS role, users.is_active
 FROM users JOIN roles ON users.role_id = roles.id;

@@ -241,7 +241,7 @@ const StudentPage: React.FC = () => {
 		}
 	};
 
-	const buildUploadProps = (key: string) => {
+		const buildUploadProps = (key: string) => {
 		const currentItem = documents.find((item) => item.key === key);
 		const fileList = currentItem?.fileName
 			? [
@@ -258,6 +258,20 @@ const StudentPage: React.FC = () => {
 			fileList,
 			maxCount: 1,
 			disabled: isSubmissionLocked,
+			accept: '.jpg,.jpeg,.png,.pdf',
+			beforeUpload: (file: File) => {
+				const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+				const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+				if (file.size > MAX_SIZE) {
+					message.error(`${file.name} vượt quá 5MB. Vui lòng chọn tệp nhỏ hơn.`);
+					return false;
+				}
+				if (!allowedTypes.includes(file.type)) {
+					message.error('Chỉ hỗ trợ định dạng JPG, PNG, PDF');
+					return false;
+				}
+				return true;
+			},
 			customRequest: async ({ file, onSuccess, onError }: any) => {
 				try {
 					const rawFile = file as File;

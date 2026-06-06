@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/auth';
 
-const API_URL = 'http://localhost:5000/api/admin';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/admin';
 
 const authHeaders = () => ({
   headers: { Authorization: `Bearer ${getToken()}` },
