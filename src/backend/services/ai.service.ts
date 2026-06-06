@@ -1,4 +1,4 @@
-import mysql from 'mysql2';
+﻿import mysql from 'mysql2';
 import { dbPool } from '../config/database';
 import type {
 	ChatMessage,
@@ -321,7 +321,7 @@ const isMethodQuery = (query: string): boolean => {
 
 // Tìm thông tin hồ sơ trong knowledge base
 const searchDocumentFromKnowledge = (schoolId?: string): string | null => {
-	const school = schoolId || 'ptit';
+	const school = schoolId || 'ho so';
 	return DEMO_KNOWLEDGE_DOCS[school] || null;
 };
 
