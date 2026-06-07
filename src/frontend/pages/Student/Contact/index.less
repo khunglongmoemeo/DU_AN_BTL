@@ -1,0 +1,139 @@
+.page {
+  min-height: 100vh;
+  background: #f0f4f8;
+}
+
+.topBar {
+  background: #8b0000;
+  color: #fff;
+  padding: 0 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.topBarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  :global(.ant-btn) {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: transparent;
+
+    &:hover {
+      border-color: #fff;
+      color: #fff;
+    }
+  }
+}
+
+.layout {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 24px;
+
+  h2 {
+    color: #1e293b;
+    margin-bottom: 8px !important;
+  }
+}
+
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contactList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.contactCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.contactIcon {
+  font-size: 22px;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.contactValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 2px 0;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.faqQ {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    padding: 12px;
+  }
+
+  .contactList {
+    grid-template-columns: 1fr;
+  }
+}

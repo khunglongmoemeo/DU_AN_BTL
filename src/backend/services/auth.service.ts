@@ -49,6 +49,28 @@ const sanitizeUser = (user: UserRecord): Omit<UserRecord, 'password_hash'> => {
 };
 
 export const registerUser = async (payload: RegisterPayload) => {
+	const normalizedEmail = payload.email?.trim().toLowerCase();
+	const normalizedUsername = payload.username?.trim() || normalizedEmail?.split('@')[0] || '';
+	const normalizedFullName = payload.fullName?.trim() || normalizedUsername;
+	const normalizedStudentCode = payload.studentCode?.trim() || null;
+	const normalizedPhone = payload.phone?.trim() || null;
+
+	if (!normalizedEmail) {
+		throw new Error('Email khong hop le');
+	}
+
+	if (!payload.password) {
+		throw new Error('Mat khau khong duoc de trong');
+	}
+
+	if (!normalizedUsername) {
+		throw new Error('Ten dang nhap khong hop le');
+	}
+
+	if (!normalizedFullName) {
+		throw new Error('Ho va ten khong hop le');
+	}
+
 	const roleId = await findRoleIdByName('student');
 
 	if (!roleId) {
@@ -59,13 +81,13 @@ export const registerUser = async (payload: RegisterPayload) => {
 	validatePasswordStrength(payload.password);
 
 	// Check if password is same as username
-	if (payload.password.toLowerCase() === payload.username.toLowerCase()) {
+	if (payload.password.toLowerCase() === normalizedUsername.toLowerCase()) {
 		throw new Error('Mật khẩu không được trùng với tên đăng nhập');
 	}
 
 	const [existingUsers] = await dbPool.query<RowDataPacket[]>(
 		'SELECT id FROM users WHERE email = ? OR username = ? LIMIT 1',
-		[payload.email, payload.username],
+		[normalizedEmail, normalizedUsername],
 	);
 
 	if (existingUsers.length > 0) {
@@ -85,24 +107,45 @@ export const registerUser = async (payload: RegisterPayload) => {
 			phone
 		) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		[
-			payload.fullName,
-			payload.email,
-			payload.username,
+			normalizedFullName,
+			normalizedEmail,
+			normalizedUsername,
 			passwordHash,
 			roleId,
-			payload.studentCode || null,
-			payload.phone || null,
+			normalizedStudentCode,
+			normalizedPhone,
+		],
+	);
+
+	await dbPool.query(
+		`INSERT INTO admission_applications (
+			user_id,
+			status,
+			documents_info,
+			confirmation_checked
+		) VALUES (?, ?, ?, ?)`,
+		[
+			result.insertId,
+			'draft',
+			JSON.stringify({
+				items: [
+					{ key: 'cccd_front', label: 'CCCD mặt trước', status: 'missing' },
+					{ key: 'cccd_back', label: 'CCCD mặt sau', status: 'missing' },
+					{ key: 'portrait', label: 'Ảnh chân dung', status: 'missing' },
+				],
+			}),
+			0,
 		],
 	);
 
 	return {
 		id: result.insertId,
-		fullName: payload.fullName,
-		email: payload.email,
-		username: payload.username,
+		fullName: normalizedFullName,
+		email: normalizedEmail,
+		username: normalizedUsername,
 		role: 'student',
-		studentCode: payload.studentCode || null,
-		phone: payload.phone || null,
+		studentCode: normalizedStudentCode,
+		phone: normalizedPhone,
 	};
 };
 

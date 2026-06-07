@@ -1,4 +1,4 @@
-﻿export default [
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -41,7 +41,42 @@
 	{
 		path: '/student',
 		layout: false,
+		component: '../frontend/pages/Student/Home',
+	},
+	{
+		path: '/student/form',
+		layout: false,
 		component: '../frontend/pages/Student',
+	},
+	{
+		path: '/student/cutoff',
+		layout: false,
+		component: '../frontend/pages/Student/Cutoff',
+	},
+	{
+		path: '/student/news/:id',
+		layout: false,
+		component: '../frontend/pages/Student/NewsDetail',
+	},
+	{
+		path: '/student/training',
+		layout: false,
+		component: '../frontend/pages/Student/Training',
+	},
+	{
+		path: '/student/tuition',
+		layout: false,
+		component: '../frontend/pages/Student/Tuition',
+	},
+	{
+		path: '/student/schedule',
+		layout: false,
+		component: '../frontend/pages/Student/Schedule',
+	},
+	{
+		path: '/student/contact',
+		layout: false,
+		component: '../frontend/pages/Student/Contact',
 	},
 	{
 		path: '/',
