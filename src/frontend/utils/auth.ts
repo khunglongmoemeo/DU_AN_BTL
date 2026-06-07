@@ -1,40 +1,51 @@
-export type UserRole = 'manager' | 'student';
+const TOKEN_KEY = 'token';
+const USER_KEY = 'user';
 
-export interface AuthUser {
-	id: number;
-	full_name: string;
-	email: string;
-	username: string;
-	role: UserRole;
-	student_code?: string | null;
-	phone?: string | null;
-}
+export const getToken = (): string | null => {
+	return localStorage.getItem(TOKEN_KEY);
+};
 
-export const getCurrentUser = (): AuthUser | null => {
-	const user = localStorage.getItem('user');
+export const setToken = (token: string): void => {
+	localStorage.setItem(TOKEN_KEY, token);
+};
 
-	if (!user) {
-		return null;
-	}
+export const removeToken = (): void => {
+	localStorage.removeItem(TOKEN_KEY);
+};
 
+export const getCurrentUser = (): Record<string, unknown> | null => {
+	const raw = localStorage.getItem(USER_KEY);
+	if (!raw) return null;
 	try {
-		return JSON.parse(user);
+		return JSON.parse(raw);
 	} catch {
 		return null;
 	}
 };
 
-export const getToken = () => localStorage.getItem('token');
-
-export const logout = () => {
-	localStorage.removeItem('token');
-	localStorage.removeItem('user');
+export const setCurrentUser = (user: Record<string, unknown>): void => {
+	localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
-export const redirectByRole = (role: UserRole) => {
-	if (role === 'manager') {
-		return '/manager';
-	}
+export const removeCurrentUser = (): void => {
+	localStorage.removeItem(USER_KEY);
+};
 
-	return '/student';
+export const logout = () => {
+	removeToken();
+	removeCurrentUser();
+	localStorage.clear();
+	window.location.href = '/user/login';
+};
+
+export const redirectByRole = (role: string): string => {
+	switch (role) {
+		case 'manager':
+		case 'admin':
+			return '/manager';
+		case 'student':
+			return '/student';
+		default:
+			return '/';
+	}
 };

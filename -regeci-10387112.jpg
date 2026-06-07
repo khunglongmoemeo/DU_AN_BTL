@@ -1,0 +1,221 @@
+[1mdiff --git a/commitlint.config.js b/commitlint.config.js[m
+[1mdeleted file mode 100644[m
+[1mindex 422b194..0000000[m
+[1m--- a/commitlint.config.js[m
+[1m+++ /dev/null[m
+[36m@@ -1 +0,0 @@[m
+[31m-module.exports = { extends: ['@commitlint/config-conventional'] };[m
+[1mdiff --git a/pexels-regeci-10387112.jpg b/pexels-regeci-10387112.jpg[m
+[1mdeleted file mode 100644[m
+[1mindex 516e7ec..0000000[m
+Binary files a/pexels-regeci-10387112.jpg and /dev/null differ
+[1mdiff --git a/src/frontend/components/ErrorBoundary/index.tsx b/src/frontend/components/ErrorBoundary/index.tsx[m
+[1mdeleted file mode 100644[m
+[1mindex 2f135ed..0000000[m
+[1m--- a/src/frontend/components/ErrorBoundary/index.tsx[m
+[1m+++ /dev/null[m
+[36m@@ -1,94 +0,0 @@[m
+[31m-import { currentRole, sentryDSN } from '@/utils/ip';[m
+[31m-import { HomeOutlined, ReloadOutlined } from '@ant-design/icons';[m
+[31m-import * as Sentry from '@sentry/react';[m
+[31m-import { Button, Result } from 'antd';[m
+[31m-import React from 'react';[m
+[31m-import { history } from 'umi';[m
+[31m-import './style.less';[m
+[31m-[m
+[31m-class ErrorBoundary extends React.Component<MyProps, MyState> {[m
+[31m-	constructor(props: MyProps) {[m
+[31m-		super(props);[m
+[31m-		this.state = { error: '', errorInfo: null };[m
+[31m-	}[m
+[31m-[m
+[31m-	componentDidMount(): void {[m
+[31m-		if (process.env.NODE_ENV !== 'development' && !!sentryDSN)[m
+[31m-			Sentry.init({[m
+[31m-				dsn: sentryDSN,[m
+[31m-				integrations: [new Sentry.BrowserTracing()],[m
+[31m-				tracesSampleRate: 0.2,[m
+[31m-				release: currentRole,[m
+[31m-			});[m
+[31m-	}[m
+[31m-[m
+[31m-	componentDidCatch(error: any, errorInfo: any) {[m
+[31m-		// Catch errors in any components below and re-render with error message[m
+[31m-		this.setState({[m
+[31m-			error: error,[m
+[31m-			errorInfo: errorInfo,[m
+[31m-		});[m
+[31m-		// You can also log error messages to an error reporting service here[m
+[31m-	}[m
+[31m-[m
+[31m-	render() {[m
+[31m-		if (this.state.errorInfo) {[m
+[31m-			// Error path[m
+[31m-			return ([m
+[31m-				<div>[m
+[31m-					<Result[m
+[31m-						status='error'[m
+[31m-						title='Có lỗi xảy ra'[m
+[31m-						subTitle={[m
+[31m-							<p>[m
+[31m-								Rất tiếc, chức năng này hiện đang hoạt động không chính xác.[m
+[31m-								<br />[m
+[31m-								Vui lòng thử lại hoặc liên hệ với quản trị viên![m
+[31m-							</p>[m
+[31m-						}[m
+[31m-						extra={[[m
+[31m-							<Button[m
+[31m-								onClick={() => {[m
+[31m-									history.push('/');[m
+[31m-									window.location.reload();[m
+[31m-								}}[m
+[31m-								key='1'[m
+[31m-								icon={<HomeOutlined />}[m
+[31m-							>[m
+[31m-								Về trang chủ[m
+[31m-							</Button>,[m
+[31m-							<Button key='buy' onClick={() => window.location.reload()} type='primary' icon={<ReloadOutlined />}>[m
+[31m-								Tải lại trang[m
+[31m-							</Button>,[m
+[31m-						]}[m
+[31m-					>[m
+[31m-						{process.env.NODE_ENV === 'development' ? ([m
+[31m-							<div className='desc'>[m
+[31m-								<b>Thông tin lỗi:</b>[m
+[31m-								<br />[m
+[31m-								<details style={{ whiteSpace: 'pre-wrap' }}>[m
+[31m-									{this.state.error ? this.state.error.toString() : ''}[m
+[31m-									<br />[m
+[31m-									{this.state.errorInfo.componentStack}[m
+[31m-								</details>[m
+[31m-							</div>[m
+[31m-						) : null}[m
+[31m-					</Result>[m
+[31m-				</div>[m
+[31m-			);[m
+[31m-		}[m
+[31m-		// Normally, just render children[m
+[31m-		return this.props.children;[m
+[31m-	}[m
+[31m-}[m
+[31m-[m
+[31m-export default ErrorBoundary;[m
+[31m-[m
+[31m-type MyProps = {[m
+[31m-	// using `interface` is also ok[m
+[31m-	children: any;[m
+[31m-};[m
+[31m-type MyState = {[m
+[31m-	error?: string; // like this[m
+[31m-	errorInfo?: any;[m
+[31m-};[m
+[1mdiff --git a/src/frontend/components/ErrorBoundary/style.less b/src/frontend/components/ErrorBoundary/style.less[m
+[1mdeleted file mode 100644[m
+[1mindex 35517d9..0000000[m
+[1m--- a/src/frontend/components/ErrorBoundary/style.less[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-.ant-result-content {[m
+[31m-  margin-top: 50px;[m
+[31m-}[m
+[1mdiff --git a/src/frontend/components/JsonEditor/index.tsx b/src/frontend/components/JsonEditor/index.tsx[m
+[1mdeleted file mode 100644[m
+[1mindex cd5f019..0000000[m
+[1m--- a/src/frontend/components/JsonEditor/index.tsx[m
+[1m+++ /dev/null[m
+[36m@@ -1,14 +0,0 @@[m
+[31m-import { Editor, type EditorProps } from '@monaco-editor/react';[m
+[31m-import './style.less';[m
+[31m-[m
+[31m-type Props = Omit<EditorProps, 'defaultLanguage' | 'language'>;[m
+[31m-[m
+[31m-const JsonEditor = ({ height = 230, ...props }: Props) => {[m
+[31m-	return ([m
+[31m-		<div className='monaco-wrapper'>[m
+[31m-			<Editor {...props} language='json' height={height} />[m
+[31m-		</div>[m
+[31m-	);[m
+[31m-};[m
+[31m-[m
+[31m-export default JsonEditor;[m
+[1mdiff --git a/src/frontend/components/JsonEditor/style.less b/src/frontend/components/JsonEditor/style.less[m
+[1mdeleted file mode 100644[m
+[1mindex 691e2c4..0000000[m
+[1m--- a/src/frontend/components/JsonEditor/style.less[m
+[1m+++ /dev/null[m
+[36m@@ -1,16 +0,0 @@[m
+[31m-@import '~antd/es/style/themes/default.less';[m
+[31m-@import '../../styles/_variable.less';[m
+[31m-[m
+[31m-@border-color: #d9d9d9;[m
+[31m-[m
+[31m-.monaco-wrapper {[m
+[31m-	border: 1px solid @border-color !important;[m
+[31m-	border-radius: @border-radius !important;[m
+[31m-	transition: 0.3s;[m
+[31m-[m
+[31m-	&:hover,[m
+[31m-	&.tox-edit-focus {[m
+[31m-		border-color: var(--primary-color) !important;[m
+[31m-		transition: 0.3s;[m
+[31m-	}[m
+[31m-}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/frontend/components/Loading/FormWaiting.tsx b/src/frontend/components/Loading/FormWaiting.tsx[m
+[1mdeleted file mode 100644[m
+[1mindex 3ffe50d..0000000[m
+[1m--- a/src/frontend/components/Loading/FormWaiting.tsx[m
+[1m+++ /dev/null[m
+[36m@@ -1,23 +0,0 @@[m
+[31m-import { Modal, Progress } from 'antd';[m
+[31m-import defaultSettings from '../../../config/defaultSettings';[m
+[31m-[m
+[31m-const FormWaiting = (s = 'Đang xử lý dữ liệu...') => {[m
+[31m-	Modal.info({[m
+[31m-		title: 'Thông báo',[m
+[31m-		centered: true,[m
+[31m-		icon: null,[m
+[31m-		okButtonProps: { hidden: true },[m
+[31m-		content: ([m
+[31m-			<div style={{ textAlign: 'center' }}>[m
+[31m-				<Progress percent={100} status='active' showInfo={false} strokeColor={defaultSettings.primaryColor} />[m
+[31m-				<span>{s}</span>[m
+[31m-				<br />[m
+[31m-				<small>[m
+[31m-					<i>(Vui lòng chờ đến khi tiến trình kết thúc!)</i>[m
+[31m-				</small>[m
+[31m-			</div>[m
+[31m-		),[m
+[31m-	});[m
+[31m-};[m
+[31m-[m
+[31m-export default FormWaiting;[m
+[1mdiff --git a/src/frontend/components/Loading/index.tsx b/src/frontend/components/Loading/index.tsx[m
+[1mdeleted file mode 100644[m
+[1mindex 43da71f..0000000[m
+[1m--- a/src/frontend/components/Loading/index.tsx[m
+[1m+++ /dev/null[m
+[36m@@ -1,33 +0,0 @@[m
+[31m-import { DeleteOutlined, HomeOutlined } from '@ant-design/icons';[m
+[31m-import { Button, Spin } from 'antd';[m
+[31m-import './style.less';[m
+[31m-[m
+[31m-const LoadingPage = () => {[m
+[31m-	const onClearCache = () => {[m
+[31m-		localStorage.clear();[m
+[31m-		sessionStorage.clear();[m
+[31m-		window.location.href = '/';[m
+[31m-		window.location.reload();[m
+[31m-	};[m
+[31m-[m
+[31m-	return ([m
+[31m-		<div className='loading-content'>[m
+[31m-			<Spin spinning size='large' />[m
+[31m-[m
+[31m-			<h2>Vui lòng đợi trong giây lát</h2>[m
+[31m-			<h3>Đang chuyển hướng tới trang đích...</h3>[m
+[31m-[m
+[31m-			<span className='loading-description'>Nếu phải chờ đợi quá lâu, bạn có thể</span>[m
+[31m-			<div className='loading-actions'>[m
+[31m-				{/* <Button icon={<HomeOutlined />} type='primary' onClick={() => (window.location.href = '/')}>[m
+[31m-					V�

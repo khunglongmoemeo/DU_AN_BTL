@@ -1,4 +1,4 @@
-﻿export default [
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -41,7 +41,17 @@
 	{
 		path: '/student',
 		layout: false,
+		component: '../frontend/pages/Student/Home',
+	},
+	{
+		path: '/student/form',
+		layout: false,
 		component: '../frontend/pages/Student',
+	},
+	{
+		path: '/student/cutoff',
+		layout: false,
+		component: '../frontend/pages/Student/Cutoff',
 	},
 	{
 		path: '/',

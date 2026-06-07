@@ -39,9 +39,12 @@ screenshot
 
 build
 .husky
+.runtime
+.run-logs
+ux-report
+src/backend/uploads/
 
 .vercel
 
 # Sentry Auth Token
 #.sentryclirc
-

@@ -211,13 +211,21 @@ Sau khi đăng nhập sẽ vào:
 
 ## 7. Chạy backend
 
-Mở terminal thứ nhất tại thư mục gốc dự án và chạy:
+**Lần đầu tiên** — cần chạy migration để tạo bảng AI chatbot:
+
+```bash
+npm run migrate
+```
+
+> Chỉ cần chạy **1 lần duy nhất** khi thiết lập project. Sau đó bỏ qua bước này.
+
+**Các lần tiếp theo** — mở terminal thứ nhất tại thư mục gốc dự án và chạy:
 
 ```bash
 yarn start:backend
 ```
 
-Nếu không dùng Yarn:
+hoặc:
 
 ```bash
 npm run start:backend
@@ -445,6 +453,8 @@ http://localhost:8000/user/login
 ```
 
 Nếu frontend hiển thị cổng khác thì dùng cổng đó.
+
+> **Lưu ý:** Lệnh `npm run migrate` chỉ cần chạy **1 lần duy nhất** khi thiết lập project lần đầu (để tạo bảng AI chatbot và seed dữ liệu). Các lần tiếp theo không cần chạy.
 
 ## 15. Ghi chú
 

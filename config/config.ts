@@ -60,6 +60,7 @@ export default defineConfig({
 	// mfsu: {},
 	webpack5: {},
 	exportStatic: {},
+	mfsu: {},
 	define: Object.entries(process.env).reduce((result, [key, value]) => {
 		if (key.startsWith('APP_CONFIG_')) {
 			return {

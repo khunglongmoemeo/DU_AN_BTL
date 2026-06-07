@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/auth';
+import { API_URL_AUTH } from './config';
 
 export interface LoginPayload {
 	username: string;
@@ -17,17 +16,17 @@ export interface RegisterPayload {
 }
 
 export const login = (payload: LoginPayload) => {
-	return axios.post(`${API_URL}/login`, payload);
+	return axios.post(`${API_URL_AUTH}/login`, payload);
 };
 
 export const register = (payload: RegisterPayload) => {
-	return axios.post(`${API_URL}/register`, payload);
+	return axios.post(`${API_URL_AUTH}/register`, payload);
 };
 
 export const forgotPassword = (email: string) => {
-	return axios.post(`${API_URL}/forgot-password`, { email });
+	return axios.post(`${API_URL_AUTH}/forgot-password`, { email });
 };
 
 export const resetPassword = (token: string, newPassword: string) => {
-	return axios.post(`${API_URL}/reset-password`, { token, newPassword });
+	return axios.post(`${API_URL_AUTH}/reset-password`, { token, newPassword });
 };
