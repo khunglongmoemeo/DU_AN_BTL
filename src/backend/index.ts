@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.routes';
 import admissionRoutes from './routes/admission.routes';
 import aiRoutes from './routes/ai.routes';
 import cutoffRoutes from './routes/cutoff.routes';
+import newsRoutes from './routes/news.routes';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admission', admissionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/cutoff', cutoffRoutes);
+app.use('/api/news', newsRoutes);
 
 // ──────────────────────────────────────────────
 // Kiểm tra sức khỏe server

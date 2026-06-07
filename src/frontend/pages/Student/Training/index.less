@@ -1,0 +1,149 @@
+.page {
+  min-height: 100vh;
+  background: #f0f4f8;
+}
+
+.topBar {
+  background: #8b0000;
+  color: #fff;
+  padding: 0 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.topBarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  :global(.ant-btn) {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: transparent;
+
+    &:hover {
+      border-color: #fff;
+      color: #fff;
+    }
+  }
+}
+
+.layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 24px;
+
+  h2 {
+    color: #1e293b;
+    margin-bottom: 8px !important;
+  }
+}
+
+.programsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.programCard {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.ant-card-body) {
+    padding: 20px;
+  }
+}
+
+.programHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.programIcon {
+  font-size: 28px;
+  color: #c41e3a;
+  background: #fff1f0;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.programTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.programDesc {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.programDetails {
+  .detailRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+}
+
+.outcomesList {
+  margin: 8px 0 0 16px;
+  padding: 0;
+
+  li {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout {
+    padding: 12px;
+  }
+
+  .programsGrid {
+    grid-template-columns: 1fr;
+  }
+}

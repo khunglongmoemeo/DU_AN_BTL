@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Divider,
-  message,
   Popover,
   Spin,
   Tag,
@@ -34,6 +33,7 @@ import {
 import { history } from 'umi';
 import { getCurrentUser, logout } from '../../../utils/auth';
 import { getMyAdmissionApplication } from '../../../services/admission';
+import { getAllNews } from '../../../services/news';
 import ChatBubble from '../../../components/ChatBubble';
 import styles from './index.less';
 
@@ -43,45 +43,6 @@ const STATS = [
   { num: '24', label: 'Ngành đào tạo' },
   { num: '12K+', label: 'Chỉ tiêu tuyển sinh' },
   { num: '95%', label: 'Sinh viên có việc làm' },
-];
-
-const NEWS = [
-  {
-    day: '28',
-    month: 'THG 6',
-    title: 'Thông báo tuyển sinh đại học chính quy năm 2026',
-    meta: 'Phòng Đào tạo · 120 lượt xem',
-  },
-  {
-    day: '25',
-    month: 'THG 6',
-    title: 'Điểm chuẩn trúng tuyển đợt 1 năm học 2026',
-    meta: 'Phòng Tuyển sinh · 1.2K lượt xem',
-  },
-  {
-    day: '20',
-    month: 'THG 6',
-    title: 'Hướng dẫn đăng ký xét tuyển trực tuyến năm 2026',
-    meta: 'Hướng dẫn · 3.5K lượt xem',
-  },
-  {
-    day: '15',
-    month: 'THG 6',
-    title: 'Chương trình đào tạo mới: Khoa học Dữ liệu & AI',
-    meta: 'Phòng Đào tạo · 890 lượt xem',
-  },
-  {
-    day: '10',
-    month: 'THG 6',
-    title: 'Thông tin học phí và chính sách hỗ trợ tài chính năm 2026',
-    meta: 'Phòng Tài vụ · 560 lượt xem',
-  },
-  {
-    day: '05',
-    month: 'THG 6',
-    title: 'Lịch trực tuyến tư vấn tuyển sinh tháng 6/2026',
-    meta: 'Tuyển sinh · 2.1K lượt xem',
-  },
 ];
 
 const TIMELINE = [
@@ -110,6 +71,19 @@ interface ApplicationData {
   checklist?: Array<{ key: string; label: string; done: boolean; step: number }>;
 }
 
+interface NewsItem {
+  id: number;
+  title: string;
+  summary: string;
+  content: string;
+  source: string;
+  views: number;
+  publishedAt: string;
+  day: string;
+  month: string;
+  tags: string[];
+}
+
 const StudentHome: React.FC = () => {
   const user = getCurrentUser();
   const [accountOpen, setAccountOpen] = useState(false);
@@ -118,6 +92,7 @@ const StudentHome: React.FC = () => {
   const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [newsList, setNewsList] = useState<NewsItem[]>([]);
 
   if (!user || user.role !== 'student') {
     history.replace('/user/login');
@@ -127,11 +102,15 @@ const StudentHome: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await getMyAdmissionApplication();
-        const data: ApplicationData = res.data.data;
+        const [appRes, newsRes] = await Promise.all([
+          getMyAdmissionApplication(),
+          getAllNews(),
+        ]);
+        const data: ApplicationData = appRes.data.data;
         setApplicationStatus(data.status || 'draft');
         setSubmittedAt(data.submittedAt || null);
         setRejectionReason(data.rejectionReason || null);
+        setNewsList(newsRes.data.data || []);
       } catch {
         // chưa có hồ sơ
       } finally {
@@ -346,11 +325,11 @@ const StudentHome: React.FC = () => {
               <Tag color="blue" style={{ marginLeft: 'auto', fontWeight: 700 }}>Mới nhất</Tag>
             </div>
             <div className={styles.cardBody} style={{ padding: '10px 18px' }}>
-              {NEWS.map((item, i) => (
+              {newsList.length > 0 ? newsList.map((item) => (
                 <div
                   className={styles.newsItem}
-                  key={i}
-                  onClick={() => message.info(`Đang xem: ${item.title}`)}
+                  key={item.id}
+                  onClick={() => history.push(`/student/news/${item.id}`)}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = '#f0f7ff'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
                 >
@@ -360,11 +339,15 @@ const StudentHome: React.FC = () => {
                   </div>
                   <div className={styles.newsContent}>
                     <div className={styles.newsTitle}>{item.title}</div>
-                    <div className={styles.newsMeta}>{item.meta}</div>
+                    <div className={styles.newsMeta}>{item.source} · {item.views.toLocaleString()} lượt xem</div>
                   </div>
                   <RightOutlined style={{ color: '#94a3b8', flex: 'none', fontSize: '12px' }} />
                 </div>
-              ))}
+              )) : (
+                <Text type="secondary" style={{ display: 'block', textAlign: 'center', padding: '16px 0' }}>
+                  Không có tin tức nào
+                </Text>
+              )}
             </div>
           </div>
         </div>
